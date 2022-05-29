@@ -6,8 +6,18 @@ const authenticate = require('../authenticate');
 const router = express.Router();
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-    res.send('respond with a resource');
+router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, function(req, res, next) {
+    //res.send('respond with a resource');
+   
+        User.find()
+        .populate('users')
+        .then(users => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(users);
+        })
+        .catch(err => next(err));
+   
 });
 
 
@@ -67,5 +77,18 @@ router.get('/logout', (req, res, next) => {
         return next(err);
     }
 });
+
+// router.get('/users', (res,req, next) => {
+//     if (req.user.admin) {
+//         User.find()
+//         .populate('users')
+//         .then(users => {
+//             res.statusCode = 200;
+//             res.setHeader('Content-Type', 'application/json');
+//             res.json(users);
+//         })
+//         .catch(err => next(err));
+//     }
+// })
 
 module.exports = router;
